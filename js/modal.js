@@ -6,87 +6,126 @@ function editNav() {
 }
 
 // DOM elements
-const modalContainer = document.querySelector(".modal")
-const modalOpenBtns = document.querySelectorAll(".modal-btn")
-const modalCloseBtns = document.querySelectorAll(".modal-close")
+const modal = document.querySelector(".modal")
+const modalBackdrop = modal.querySelector(".modal-backdrop")
+const openModalHandlers = document.querySelectorAll(".open-modal")
+const closeModalHandlers = document.querySelectorAll(".close-modal")
 
-const form = document.querySelector("form")
+const registerForm = document.querySelector("form")
 const formGroupElements = document.querySelectorAll(".input-group")
 
 // Open modal
 function openModal() {
-  modalContainer.style.display = "block"
-  document.querySelector("input").focus()
+  modal.removeAttribute("hidden")
+  modal.classList.add("visible")
 }
 
 // Close modal
 function closeModal() {
-  modalContainer.removeAttribute("style")
-  resetForm()
+  const successMessage = document.querySelector(".form-success")
+  modal.classList.remove("visible")
+
+  // setTimeout to wait for the animation to finish
+  setTimeout(() => {
+    // reset form
+    resetForm(registerForm)
+    // hide success message
+    successMessage.classList.remove("visible")
+    successMessage.setAttribute("hidden", true)
+    // show form
+    registerForm.removeAttribute("hidden")
+  }, 1000)
 }
 
 // Reset form function
 // used when the user closes the modal or after a successful form submission
-function resetForm() {
+function resetForm(form) {
   form.reset()
   formGroupElements.forEach((element) => {
     clearError(element)
   })
 }
 
-// Add some event listeners to modal
-function addModalEventListeners() {
-  modalOpenBtns.forEach((btn) => btn.addEventListener("click", openModal))
-  modalCloseBtns.forEach((btn) => btn.addEventListener("click", closeModal))
+// Check if the input is not empty
+function notEmpty(element) {
+  const isValid = element.value.length >= 2
+  const message = "Veuillez entrer 2 caractères ou plus."
 
-  window.addEventListener("click", (event) => {
-    if (event.target === modalContainer) {
-      closeModal()
-    }
-  })
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeModal()
-    }
-  })
+  return isValid ? null : message
 }
 
-// Field validation rules factory
-// used to check the inputs when the user submits the form or corrects the input
-function fieldValidationRulesFactory(fieldName, value) {
-  switch (fieldName) {
-    case "firstName":
-    case "lastName":
-      return value.trim().length >= 2
-    case "email":
-      return /^[\w-\.]+@([\w-]+\.)+[\w]+$/.test(value)
-    case "birthDate":
-    case "quantity":
-      return value.trim() !== ""
-    case "location":
-      return [...document.querySelectorAll('input[name="location"]')].some(
-        (radio) => radio.checked
-      )
-    case "acceptTerms":
-      return document.querySelector('input[name="acceptTerms"]').checked
-    default:
-      return true // Default to valid if no validation defined
+// Check if is a valid email address
+function isEmail(element) {
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(element.value)
+  const message = "Veuillez entrer une adresse mail valide."
+
+  return isValid ? null : message
+}
+
+// check if the value is a number
+function isNumber(element) {
+  const isValid = /^\d+$/.test(element.value)
+  const message = "Veuillez entrer un nombre."
+
+  return isValid ? null : message
+}
+
+// Check if the input is not empty
+function isBirthDate(element) {
+  // is valid if date is in the past and is correct format
+  const today = new Date()
+  const isValid = new Date(element.value) < today
+  const message = "Veuillez entrer votre date de naissance."
+
+  return isValid ? null : message
+}
+
+// Get error message for each validation
+function getError(element) {
+  const validate = element.dataset.validate
+  return window[validate] ? window[validate](element) : null
+}
+
+// Display or clear error message for each field
+function setError(element, errorMessage) {
+  const errorVisibleAttribute = "data-error-visible"
+  const errorAttribute = "data-error"
+  if (errorMessage) {
+    element.setAttribute(errorVisibleAttribute, true)
+    element.setAttribute(errorAttribute, errorMessage)
+  } else {
+    element.removeAttribute(errorVisibleAttribute)
+    element.removeAttribute(errorAttribute)
   }
 }
 
+// Input validation
+// ============================================================
 // Check inputs and display error message if needed
-function checkInputs() {
-  formGroupElements.forEach((element) => {
-    const input = element.querySelector("input")
-    const fieldName = input.name
-    const value = input.value.trim()
-    const isValid = fieldValidationRulesFactory(fieldName, value)
+function validateInput(field) {
+  console.log(field)
+  const parentElement = field.parentElement
+  const errorMessage = getError(field)
 
-    if (!isValid) {
-      displayError(element, getErrorMessage(fieldName))
-    } else {
-      clearError(element)
+  // if there is an error, display it
+  setError(parentElement, errorMessage)
+}
+
+// Group modal event listeners in one function
+function addModalEventListeners() {
+  // open modal on click on open modal button
+  openModalHandlers.forEach((handler) => {
+    handler.addEventListener("click", openModal)
+  })
+  // close modal on close button click
+  closeModalHandlers.forEach((handler) => {
+    handler.addEventListener("click", closeModal)
+  })
+
+  // close modal when clicking outside modal-content
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeModal()
     }
   })
 }
@@ -95,82 +134,50 @@ function checkInputs() {
 function addInputEventListener() {
   formGroupElements.forEach((element) => {
     const input = element.querySelector("input")
-    // Listen to change event
-    input.addEventListener("change", () => {
-      const fieldName = input.name
-      const value = input.value.trim()
-      // Check if input is valid with fieldValidationRulesFactory
-      const isValid = fieldValidationRulesFactory(fieldName, value)
 
-      if (!isValid) {
-        displayError(element, getErrorMessage(fieldName))
-      } else {
-        clearError(element)
-      }
+    // validate input on change
+    input.addEventListener("change", () => {
+      validateInput(input)
     })
   })
 }
 
-// Display error message for each field
-function displayError(element, errorMessage) {
-  const errorVisibleAttribute = "data-error-visible"
-  const errorAttribute = "data-error"
-  element.setAttribute(errorVisibleAttribute, true)
-  element.setAttribute(errorAttribute, errorMessage)
-}
+// Add event listener to the form
+function addFormEventListeners(form) {
+  form.addEventListener("submit", (event) => {
+    // prevent form submission
+    event.preventDefault()
 
-// Clear error message for each field
-// used when the user corrects the input without reloading the page
-function clearError(element) {
-  const errorVisibleAttribute = "data-error-visible"
-  const errorAttribute = "data-error"
-  element.removeAttribute(errorVisibleAttribute)
-  element.removeAttribute(errorAttribute)
-}
+    // On form submission, validate each input
+    const fields = event.target.querySelectorAll("input")
+    fields.forEach((field) => {
+      validateInput(field)
+    })
 
-// Get error message for each field by name
-function getErrorMessage(fieldName) {
-  switch (fieldName) {
-    case "firstName":
-      return "Veuillez entrer 2 caractères ou plus pour le champ du prénom."
-    case "lastName":
-      return "Veuillez entrer 2 caractères ou plus pour le champ du nom."
-    case "email":
-      return "Veuillez entrer une adresse email valide."
-    case "birthDate":
-      return "Vous devez entrer votre date de naissance."
-    case "quantity":
-      return "Vous devez entrer un nombre."
-    case "location":
-      return "Vous devez choisir un tournoi."
-    case "acceptTerms":
-      return "Vous devez vérifier que vous acceptez les termes et conditions."
-    default:
-      return ""
-  }
+    // early return if there is an error
+    const checkError = document.querySelector("[data-error-visible]")
+    if (checkError) {
+      return
+    }
+
+    // TODO: maybe make an other modal for the success message
+    form.setAttribute("hidden", true)
+    const successMessage = document.querySelector(".form-success")
+    successMessage.removeAttribute("hidden")
+    successMessage.classList.add("visible")
+  })
 }
 
 // Initialize
 // ============================================================
 
 // modale event listeners
-addModalEventListeners()
-
-// live check inputs
-addInputEventListener()
+if (modal) {
+  addModalEventListeners()
+}
 
 // form event listeners
-form.addEventListener("submit", (event) => {
-  event.preventDefault()
-  checkInputs()
-  if (!document.querySelector("[data-error-visible]")) {
-    form.remove()
-    document.querySelector(".modal-body").innerHTML = `
-      <div class="confirmation">
-        <h2>Merci !</h2>
-        <p>Votre réservation a été reçue.</p>
-        <button class="modal-close">Fermer</button>
-      </div>
-    `
-  }
-})
+if (registerForm) {
+  addFormEventListeners(registerForm)
+  addInputEventListener()
+}
