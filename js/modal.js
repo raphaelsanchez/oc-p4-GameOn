@@ -40,10 +40,12 @@ function closeModal() {
 // Reset form function
 // used when the user closes the modal or after a successful form submission
 function resetForm(form) {
-  form.reset()
+  //clear all errors
   formGroupElements.forEach((element) => {
-    clearError(element)
+    setError(element, null)
   })
+  // Reset form function
+  form.reset()
 }
 
 // Check if the input is not empty
