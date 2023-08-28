@@ -73,9 +73,9 @@ function isNumber(element) {
 // check if one of the radio button with same name is checked
 function isRadioChecked(element) {
   const radioButtons = document.querySelectorAll(
-    `input[name=${element.name}]:checked`
+    `input[name="${element.name}"]`
   )
-  const isValid = radioButtons.length > 0
+  const isValid = [...radioButtons].some((button) => button.checked)
   const message = "Veuillez choisir une option."
 
   return isValid ? null : message
@@ -99,7 +99,10 @@ function isBirthDate(element) {
   return isValid ? null : message
 }
 
-// Get error message for each validation
+// This function gets the error for a given element.
+// It does this by getting the element's `data-validate` attribute
+// and then calling the function that is defined by that name.
+// If there is no such function, it returns null.
 function getError(element) {
   const validate = element.dataset.validate
   return window[validate] ? window[validate](element) : null
@@ -151,7 +154,20 @@ function addModalEventListeners() {
 // Add event listener to each input
 function addInputEventListener() {
   formGroupElements.forEach((element) => {
+    // get all inputs
     const input = element.querySelector("input")
+
+    // if input is a radio button, add event listener to each radio button
+    if (input.type === "radio") {
+      const radioButtons = document.querySelectorAll(
+        `input[name="${input.name}"]`
+      )
+      radioButtons.forEach((button) => {
+        button.addEventListener("change", () => {
+          validateInput(input)
+        })
+      })
+    }
 
     // validate input on change
     input.addEventListener("change", () => {
