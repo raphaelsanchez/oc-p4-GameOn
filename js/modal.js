@@ -6,21 +6,23 @@ function editNav() {
 }
 
 // DOM elements
+// get all elements needed for the modal
 const modal = document.querySelector(".modal")
 const modalBackdrop = modal.querySelector(".modal-backdrop")
 const openModalHandlers = document.querySelectorAll(".open-modal")
 const closeModalHandlers = document.querySelectorAll(".close-modal")
 
+// get all elements needed for the form
 const registerForm = document.querySelector("form")
 const formGroupElements = document.querySelectorAll(".input-group")
 
-// Open modal
+// Open modal function
 function openModal() {
   modal.removeAttribute("hidden")
   modal.classList.add("visible")
 }
 
-// Close modal
+// Close modal function
 function closeModal() {
   const successMessage = document.querySelector(".form-success")
   modal.classList.remove("visible")
@@ -40,7 +42,7 @@ function closeModal() {
 // Reset form function
 // used when the user closes the modal or after a successful form submission
 function resetForm(form) {
-  //clear all errors
+  // clear all errors
   formGroupElements.forEach((element) => {
     setError(element, null)
   })
@@ -49,6 +51,7 @@ function resetForm(form) {
 }
 
 // Check if the input is not empty
+// used for first name, last name and city inputs (min 2 characters)
 function notEmpty(element) {
   const isValid = element.value.length >= 2
   const message = "Veuillez entrer 2 caractères ou plus."
@@ -57,6 +60,7 @@ function notEmpty(element) {
 }
 
 // Check if is a valid email address
+// used for email input (regex)
 function isEmail(element) {
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(element.value)
   const message = "Veuillez entrer une adresse mail valide."
@@ -65,6 +69,7 @@ function isEmail(element) {
 }
 
 // check if the value is a number
+// use to check if the user entered a number for the number of tournaments
 function isNumber(element) {
   const isValid = /^\d+$/.test(element.value)
   const message = "Veuillez entrer un nombre."
@@ -73,6 +78,7 @@ function isNumber(element) {
 }
 
 // check if one of the radio button with same name is checked
+// used for radio buttons. The name of the radio buttons must be the same
 function isRadioChecked(element) {
   const radioButtons = document.querySelectorAll(
     `input[name="${element.name}"]`
@@ -84,6 +90,7 @@ function isRadioChecked(element) {
 }
 
 // check if accept terms is checked
+// used for accept terms checkbox.
 function isCheckboxChecked(element) {
   const isValid = element.checked
   const message = "Veuillez accepter les conditions d'utilisation."
@@ -91,7 +98,8 @@ function isCheckboxChecked(element) {
   return isValid ? null : message
 }
 
-// Check if the input is not empty
+// Check if the input is a birth date
+// used for birth date input. The date must be in the past
 function isBirthDate(element) {
   // is valid if date is in the past and is correct format
   const today = new Date()
@@ -110,7 +118,13 @@ function getError(element) {
   return window[validate] ? window[validate](element) : null
 }
 
-// Display or clear error message for each field
+// This code is used to display or clear error messages for each field on the form
+// The setError function takes two parameters: an element and an error message
+// If the errorMessage parameter is not empty, the function sets two attributes on the element
+// The attributes are named data-error-visible and data-error
+// The data-error-visible attribute is set to true
+// The data-error attribute is set to the errorMessage parameter
+// If the errorMessage parameter is empty, the function removes the data-error-visible and data-error attributes
 function setError(element, errorMessage) {
   const errorVisibleAttribute = "data-error-visible"
   const errorAttribute = "data-error"
@@ -123,9 +137,21 @@ function setError(element, errorMessage) {
   }
 }
 
-// Input validation
-// ============================================================
-// Check inputs and display error message if needed
+// This function is used to validate user input. It takes a field as an argument.
+// It then gets the field's parent element and the error message associated with the field.
+// If there is an error, the function will display it.
+function validateInput(field) {
+  const parentElement = field.parentElement
+  const errorMessage = getError(field)
+
+  // if there is an error, display it
+  setError(parentElement, errorMessage)
+}
+
+// ValidateInput function
+// This function is used to validate user input. It takes a field as an argument.
+// It then gets the field's parent element and the error message associated with the field.
+// If there is an error, the function will display it.
 function validateInput(field) {
   const parentElement = field.parentElement
   const errorMessage = getError(field)
@@ -153,7 +179,7 @@ function addModalEventListeners() {
   })
 }
 
-// Add event listener to each input
+// Group input event listeners in one function
 function addInputEventListener() {
   formGroupElements.forEach((element) => {
     // get all inputs
@@ -161,11 +187,9 @@ function addInputEventListener() {
 
     // if input is a radio button, add event listener to each radio button
     if (input.type === "radio") {
-      const radioButtons = document.querySelectorAll(
-        `input[name="${input.name}"]`
-      )
-      radioButtons.forEach((button) => {
-        button.addEventListener("change", () => {
+      const radios = document.querySelectorAll(`input[name="${input.name}"]`)
+      radios.forEach((radio) => {
+        radio.addEventListener("change", () => {
           validateInput(input)
         })
       })
@@ -196,7 +220,7 @@ function addFormEventListeners(form) {
       return
     }
 
-    // TODO: maybe make an other modal for the success message
+    // if no error, hide form and show success message
     form.setAttribute("hidden", true)
     const successMessage = document.querySelector(".form-success")
     successMessage.removeAttribute("hidden")
