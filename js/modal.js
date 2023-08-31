@@ -1,9 +1,16 @@
 // Edit navigation
 // used for responsive navigation
-function editNav() {
-  const nav = document.getElementById("myTopnav")
-  nav.className = nav.className === "topnav" ? "topnav responsive" : "topnav"
-}
+
+const navToggle = document.querySelector(".nav-toggle")
+const nav = document.querySelector(".nav-items")
+
+navToggle.addEventListener("click", () => {
+  // toggle open class on nav
+  nav.classList.toggle("open")
+  // change aria-expanded attribute depending on the state of the navigation
+  const isOpen = nav.classList.contains("open")
+  navToggle.setAttribute("aria-expanded", isOpen)
+})
 
 // DOM elements
 // get all elements needed for the modal
