@@ -253,7 +253,7 @@ input {
 }
 .input-group[data-error]::after {
   position: absolute;
-  right: 0;
+  inset-inline: 0;
   bottom: -1rem;
   content: attr(data-error);
   font-size: 0.675rem;
@@ -261,7 +261,7 @@ input {
   display: block;
   margin-top: 7px;
   margin-bottom: 7px;
-  text-align: right;
+  text-align: left;
   line-height: 0.3;
   opacity: 0;
   transition: 0.3s;
@@ -447,116 +447,122 @@ fieldset {
   padding: 0;
   margin: 0;
 }
+
+/** 
+ * Hero Section 
+ * ------------------------------------------------
+ */
 .hero-section {
-  min-height: 93vh;
+  --gap: 2rem;
+  isolation: isolate;
   border-radius: 10px;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  row-gap: var(--gap);
   overflow: hidden;
-  box-shadow: 0 2px 7px 2px rgba(0, 0, 0, 0.2);
   margin-bottom: 10px;
 }
-.hero-content {
-  padding: 51px 67px;
-  grid-column: span 4;
-  background: #232323;
-  color: #fff;
-  position: relative;
-  text-align: left;
-  min-width: 424px;
+
+.hero-section__headline {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-block-start: 2rem;
+  font-size: clamp(2.5rem, 5vw + 1rem, 6rem);
+  font-weight: normal;
+  text-wrap: balance;
 }
-.hero-content::after {
-  content: "";
+
+.hero-section__text {
+  font-weight: normal;
+  font-size: 0.825rem;
+}
+
+.hero-section__img {
   width: 100%;
   height: 100%;
-  background: #232323;
-  position: absolute;
-  right: -80px;
-  top: 0;
-}
-.hero-content > * {
-  position: relative;
-  z-index: 1;
-}
-.hero-headline {
-  font-size: 6rem;
-  font-weight: normal;
-  white-space: nowrap;
-}
-.hero-text {
-  width: 146%;
-  font-weight: normal;
-  margin-top: 57px;
-  padding: 0;
-}
-.btn-signup {
-  outline: none;
-  text-transform: capitalize;
-  font-size: 1.3rem;
-  padding: 15px 23px;
-  margin: 0;
-  margin-top: 59px;
-}
-.hero-img {
-  grid-column: span 8;
-}
-.hero-img img {
-  width: 100%;
-  height: 100%;
+  object-fit: cover;
+  object-position: center;
   display: block;
   padding: 0;
+  border-radius: 0.5rem;
 }
+
+.hero-section__btn {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-section__btn .btn-signup {
+  outline: none;
+  text-transform: capitalize;
+  font-size: 0.825rem;
+  padding: 15px 23px;
+  margin: 0;
+}
+
+/** 
+ * Footer 
+ * ------------------------------------------------
+ */
+footer {
+  padding-left: 2vw;
+  padding-right: 2vw;
+  margin: 0 20px;
+}
+
 .copyrights {
   color: #fe142f;
   padding: 0;
   font-size: 1rem;
   margin: 60px 0 30px;
   font-weight: bolder;
+  text-align: center;
 }
-.hero-section > .btn-signup {
-  display: none;
-}
-footer {
-  padding-left: 2vw;
-  padding-right: 2vw;
-  margin: 0 20px;
-}
-@media screen and (max-width: 800px) {
+
+@media screen and (min-width: 960px) {
   .hero-section {
-    display: block;
-    box-shadow: unset;
+    --gap: 3.5rem;
+    grid-template-columns: 2fr var(--gap) 2fr;
+    box-shadow: 0 2px 7px 2px rgba(0, 0, 0, 0.2);
+    background: #232323;
+    color: #fff;
   }
-  .hero-content {
-    background: #fff;
-    color: #000;
-    padding: 20px;
+
+  .hero-section__headline,
+  .hero-section__text,
+  .hero-section__btn {
+    padding-inline: var(--gap);
   }
-  .hero-content::after {
-    content: unset;
+
+  .hero-section__headline {
+    margin-block-start: var(--gap);
   }
-  .hero-content .btn-signup {
-    display: none;
-  }
-  .hero-headline {
-    font-size: 4.5rem;
-    white-space: normal;
-  }
-  .hero-text {
-    width: unset;
+
+  .hero-section__text {
+    grid-column: 1 / 1;
+    grid-row: 2;
     font-size: 1.5rem;
   }
-  .hero-img img {
-    border-radius: 10px;
-    margin-top: 40px;
+
+  .hero-section__img {
+    grid-column: 2 / -1;
+    grid-row: 1 / 4;
+    z-index: -1;
   }
-  .hero-section > .btn-signup {
-    display: block;
-    margin: 32px auto 10px;
-    padding: 12px 35px;
+
+  .hero-section__btn {
+    margin-block-end: var(--gap);
+    align-self: center;
+    justify-self: self-start;
   }
+
+  .hero-section__btn .btn-signup {
+    font-size: 1.5rem;
+    padding: 15px 23px;
+  }
+
   .copyrights {
     margin-top: 50px;
-    text-align: center;
+    text-align: initial;
   }
 }
 
