@@ -3,6 +3,7 @@
 
 const navToggle = document.querySelector(".nav-toggle")
 const nav = document.querySelector(".nav-items")
+const body = document.querySelector("body")
 
 navToggle.addEventListener("click", () => {
   // toggle open class on nav
@@ -15,7 +16,7 @@ navToggle.addEventListener("click", () => {
 // DOM elements
 // get all elements needed for the modal
 const modal = document.querySelector(".modal")
-const modalBackdrop = modal.querySelector(".modal-backdrop")
+// const modalBackdrop = modal.querySelector(".modal-backdrop")
 const openModalHandlers = document.querySelectorAll(".open-modal")
 const closeModalHandlers = document.querySelectorAll(".close-modal")
 
@@ -25,25 +26,29 @@ const formGroupElements = document.querySelectorAll(".input-group")
 
 // Open modal function
 function openModal() {
-  modal.removeAttribute("hidden")
-  modal.classList.add("visible")
+  modal.showModal()
+  // prevent scrolling when modal is open
+  body.classList.add("no-scroll")
+  // get the first input of the form
+  const firstInput = registerForm.querySelector("input")
+  // focus on the first input if there is one
+  firstInput && firstInput.focus()
 }
 
 // Close modal function
 function closeModal() {
-  const successMessage = document.querySelector(".form-success")
-  modal.classList.remove("visible")
-
-  // setTimeout to wait for the animation to finish
-  setTimeout(() => {
-    // reset form
-    resetForm(registerForm)
-    // hide success message
-    successMessage.classList.remove("visible")
-    successMessage.setAttribute("hidden", true)
-    // show form
-    registerForm.removeAttribute("hidden")
-  }, 1000)
+  modal.setAttribute("closing", "")
+  body.classList.remove("no-scroll")
+  // Remove the "closing" attribute when the animation ends.
+  modal.addEventListener(
+    "animationend",
+    () => {
+      modal.removeAttribute("closing")
+      modal.close()
+      resetForm(registerForm)
+    },
+    { once: true }
+  )
 }
 
 // Reset form function
@@ -53,6 +58,14 @@ function resetForm(form) {
   formGroupElements.forEach((element) => {
     setError(element, null)
   })
+
+  // remove success message if there is one
+  const successMessage = document.querySelector(".form-success")
+  successMessage && successMessage.remove()
+
+  // show form
+  form.removeAttribute("hidden")
+
   // Reset form function
   form.reset()
 }
@@ -169,6 +182,11 @@ function validateInput(field) {
 
 // Group modal event listeners in one function
 function addModalEventListeners() {
+  // check if modal contain open attribute
+  const isOpen = modal.hasAttribute("open")
+  // if modal is open, add no-scroll class to body else remove it
+  isOpen ? body.classList.add("no-scroll") : body.classList.remove("no-scroll")
+
   // open modal on click on open modal button
   openModalHandlers.forEach((handler) => {
     handler.addEventListener("click", openModal)
@@ -229,9 +247,20 @@ function addFormEventListeners(form) {
 
     // if no error, hide form and show success message
     form.setAttribute("hidden", true)
-    const successMessage = document.querySelector(".form-success")
-    successMessage.removeAttribute("hidden")
-    successMessage.classList.add("visible")
+
+    // Create success message
+    const successMessage = document.createElement("div")
+    successMessage.classList.add("form-success")
+    successMessage.innerHTML = `
+      <div class="form-success__message">
+        <p>Merci pour<br> votre inscription.</p>
+      </div>
+      <div class="form-success__action">
+        <button class="btn-signup" onclick="closeModal()">Fermer</button>
+      </div>
+    `
+    // Append success message to form
+    form.parentElement.appendChild(successMessage)
   })
 }
 

@@ -1,7 +1,7 @@
 :root {
   --font-default: "DM Sans", Arial, Helvetica, sans-serif;
   --font-slab: var(--font-default);
-  --modal-duration: 0.8s;
+  --modal-duration: 350ms;
 }
 * {
   box-sizing: border-box;
@@ -159,13 +159,11 @@ img {
 }
 
 main {
-  font-size: 130%;
   font-weight: bolder;
   color: black;
   padding-top: 0.5vw;
   padding-left: 2vw;
   padding-right: 2vw;
-  margin: 1px 20px 15px;
   border-radius: 2rem;
 }
 
@@ -199,82 +197,80 @@ main {
  * Modal 
  * ------------------------------------------------ */
 .modal {
-  display: grid;
-  place-content: center;
-  position: fixed;
-  z-index: 1000;
-  inset: 0;
+  margin-block: auto 0;
+  height: calc(100vh - 80px);
+  padding: 2rem 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: #333;
+  color: white;
+  border: none;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 0 0 100vw rgb(255 255 255 / 0);
+}
+
+.modal::backdrop {
   opacity: 0;
-  visibility: hidden;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
 }
 
-.modal .modal-content {
-  display: grid;
-  place-content: center;
-  padding: 30px;
-  border-radius: 8px;
-  background: #232323;
-  box-shadow: 0px 12px 12px 0px rgba(0, 0, 0, 0.25);
-  color: #fff;
-  max-width: 530px;
-  translate: 0 -50px;
-  transition: all 0.6s ease;
-  z-index: 1000;
+.modal[open] {
+  animation: slideUp var(--modal-duration) ease forwards,
+    fadeIn var(--modal-duration) ease;
 }
 
-.modal .modal-content > * {
-  grid-row: 1;
-  grid-column: 1;
+.modal[closing] {
+  display: block;
+  pointer-events: none;
+  inset: 0;
+  animation: fadeOut var(--modal-duration) ease forwards,
+    slideDown var(--modal-duration) ease;
 }
+
+@media (min-width: 960px) {
+  .modal {
+    margin: auto;
+    padding: 3rem 2rem;
+    height: min-content;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 0 100vw rgb(255 255 255 / 0.95);
+  }
+}
+
+/* .modal[closing]::backdrop {
+  animation: fadeOut var(--modal-duration) ease forwards;
+} */
 
 .modal .close-button {
   position: absolute;
   right: 15px;
-  top: -15px;
+  top: 15px;
   z-index: 1;
   background: transparent;
   border: none;
-  color: #fff;
+  color: inherit;
   cursor: pointer;
 }
 
 .modal .form-success {
-  min-height: 50vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  pointer-events: none;
+  min-height: 40vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
 }
-.modal .form-success__text {
-  margin-block: auto;
+
+.modal .form-success__message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   font-family: DM Sans;
   font-size: 36px;
   font-style: normal;
   font-weight: 400;
   text-wrap: balance;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-.modal .form-success.visible {
-  pointer-events: initial;
-}
-.modal .form-success.visible .form-success__text {
-  opacity: 1;
+  animation: fadeIn 1s ease;
 }
 
 /* Modal visible */
-.modal.visible {
-  opacity: 1;
-  visibility: visible;
-}
-.modal.visible .modal-content {
-  translate: 0 0;
-}
 
 label,
 legend {
@@ -427,6 +423,13 @@ input[data-error]::after {
   cursor: pointer;
   border: 0;
 }
+
+.btn-submit:focus-visible,
+.btn-signup:focus-visible {
+  outline: 2px solid green;
+  outline-offset: 2px;
+}
+
 /* custom select styles */
 .custom-select {
   position: relative;
@@ -526,7 +529,7 @@ fieldset {
 
 .hero-section__text {
   font-weight: normal;
-  font-size: 0.825rem;
+  font-size: clamp(0.825rem, 2vw, 1.5rem);
 }
 
 .hero-section__img {
@@ -545,7 +548,6 @@ fieldset {
 }
 
 .hero-section__btn .btn-signup {
-  outline: none;
   text-transform: capitalize;
   font-size: 0.825rem;
   padding: 15px 23px;
@@ -593,7 +595,6 @@ footer {
   .hero-section__text {
     grid-column: 1 / 1;
     grid-row: 2;
-    font-size: 1.5rem;
   }
 
   .hero-section__img {
@@ -616,5 +617,45 @@ footer {
   .copyrights {
     margin-top: 50px;
     text-align: initial;
+  }
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translate3d(0, 5%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 5%, 0);
   }
 }
